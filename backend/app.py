@@ -6,7 +6,6 @@ from routes._init_routes import create_routes
 from extensions import mail
 from datetime import datetime
 from flask_cors import CORS
-from create_admin import create_admin
 
 app = Flask(__name__)
 CORS(
@@ -35,7 +34,6 @@ jwt = JWTManager(app)
 # Créer toutes les tables
 with app.app_context():
     db.create_all()
-    create_admin()
 
 # Enregistrer les blueprints (routes)
 create_routes(app)
