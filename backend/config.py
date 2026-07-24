@@ -27,7 +27,7 @@ class Config:
     # ===============================
     # FRONTEND
     # ===============================
-    FRONTEND_URL = os.getenv("FRONTEND_URL")
+    FRONTEND_URL = https://vente-pi.vercel.app
 
     # ===============================
     # MAIL (API Resend - HARDCODED)
