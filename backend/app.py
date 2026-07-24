@@ -12,7 +12,7 @@ CORS(
         app,
         resources={
             r"/api/*": {
-                "origins": [Config.FRONTEND_URL] if Config.FRONTEND_URL else "*",
+                "origins": https://vente-pi.vercel.app,
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"],
                 "supports_credentials": True,
