@@ -32,7 +32,7 @@ class Config:
     # ===============================
     # MAIL (API Resend - HARDCODED)
     # ===============================
-    RESEND_API_KEY = "re_P1Y4izQD_Ld8a8cExpBVPKFKRvpZQgiVa"
+    RESEND_API_KEY = "re_f4cqjHst_J6cFgRzBwJpvUyBmPs7rQBer"
     MAIL_DEFAULT_SENDER = "onboarding@resend.dev"
 
     # ===============================
