@@ -32,7 +32,7 @@ class Config:
     # ===============================
     # MAIL (API Resend - HARDCODED)
     # ===============================
-    RESEND_API_KEY = "re_f4cqjHst_J6cFgRzBwJpvUyBmPs7rQBer"
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY")
     MAIL_DEFAULT_SENDER = "onboarding@resend.dev"
 
     # ===============================
