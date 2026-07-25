@@ -1,7 +1,9 @@
-import os
 from dotenv import load_dotenv
+import os
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 
 class Config:
@@ -30,10 +32,11 @@ class Config:
     FRONTEND_URL = os.getenv("FRONTEND_URL")
 
     # ===============================
-    # MAIL (API Resend - HARDCODED)
+    # MAIL (API Brevo)
     # ===============================
-    RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-    MAIL_DEFAULT_SENDER = "onboarding@resend.dev"
+    BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER")
+    MAIL_SENDER_NAME = os.getenv("MAIL_SENDER_NAME", "Vente PI")
 
     # ===============================
     # SECURITY
