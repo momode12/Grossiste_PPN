@@ -16,8 +16,7 @@ import CaisseList from "@/pages/caisse/CaisseList";
 import SettingPage from "@/pages/settings/SettingPage";
 
 // Auth pages
-import Login from "@/pages/auth/AdminLogin";
-import UserLogin from "@/pages/auth/UserLogin";
+import AuthPage from "@/pages/auth/AuthPage";
 import RegisterUser from "@/pages/auth/Register";
 import Unauthorized from "@/pages/auth/Unauthorized";
 
@@ -28,7 +27,7 @@ import DashboardRevenu from "@/pages/rapport/Dashboard_revenu";
 const UserHomeWrapper: React.FC = () => {
   const userStr = localStorage.getItem("user");
   const user = userStr ? JSON.parse(userStr) : null;
-  
+
   return <UserHome role={user?.role || "caissier"} userId={user?.id || ""} />;
 };
 
@@ -38,8 +37,8 @@ const App: React.FC = () => {
       <AuthProvider>
         <Routes>
           {/* Pages publiques */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/user" element={<UserLogin />} />
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/user" element={<AuthPage />} />
           <Route path="/register" element={<RegisterUser />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
@@ -81,7 +80,7 @@ const App: React.FC = () => {
           </Route>
 
           {/* Page par défaut */}
-          <Route path="*" element={<Login />} />
+          <Route path="*" element={<AuthPage />} />
         </Routes>
       </AuthProvider>
     </Router>
