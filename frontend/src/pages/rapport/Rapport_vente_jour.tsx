@@ -8,12 +8,23 @@ export default function RapportVentesJour() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getRapportVentesJour().then((data) => {
-      console.log("Rapport ventes jour:", data);
-      setTotal(data.total ?? 0);
-      setDate(data.date ?? null);
-      setLoading(false);
-    });
+    let active = true;
+
+    getRapportVentesJour()
+      .then((data) => {
+        if (active) {
+          setTotal(data.total ?? 0);
+          setDate(data.date ?? null);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const formattedDate = date
@@ -29,11 +40,11 @@ export default function RapportVentesJour() {
     <div className="p-6 space-y-6">
       {/* En-tête */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center shadow-lg">
-          <Calendar className="text-white" size={22} />
+        <div className="w-11 h-11 rounded-xl bg-indigo-100 flex items-center justify-center">
+          <Calendar className="text-indigo-600" size={22} />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">
+          <h2 className="text-xl font-bold text-slate-800">
             Rapport des ventes du jour
           </h2>
           <p className="text-slate-500 text-sm">
@@ -43,30 +54,33 @@ export default function RapportVentesJour() {
       </div>
 
       {/* Carte principale */}
-      <div className="bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl p-6 shadow-xl text-white relative overflow-hidden">
-        {/* Icône décorative */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6 relative overflow-hidden">
         <TrendingUp
-          size={120}
-          className="absolute right-4 bottom-4 opacity-10"
+          size={100}
+          className="absolute right-4 bottom-4 text-indigo-50"
         />
 
         {loading ? (
-          <p className="text-lg font-medium">Chargement des données...</p>
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p className="text-slate-500 font-medium">Chargement des données...</p>
+          </div>
         ) : (
           <>
-            <p className="text-sm uppercase tracking-wide opacity-90">
-              Chiffre d’affaires
+            <p className="text-sm uppercase tracking-wide text-slate-500 font-medium">
+              Chiffre d'affaires
             </p>
 
             <div className="mt-2 flex items-end gap-2">
-              <span className="text-4xl font-extrabold">
-                {total.toLocaleString()}
+              <span className="text-4xl font-extrabold text-indigo-600">
+                {total.toLocaleString("fr-FR")}
               </span>
-              <span className="text-lg font-semibold mb-1">Ar</span>
+              <span className="text-lg font-semibold mb-1 text-slate-600">Ar</span>
             </div>
 
-            <p className="mt-4 text-sm opacity-90">
-              📅 {formattedDate}
+            <p className="mt-4 text-sm text-slate-500 flex items-center gap-1.5">
+              <Calendar size={14} />
+              {formattedDate}
             </p>
           </>
         )}

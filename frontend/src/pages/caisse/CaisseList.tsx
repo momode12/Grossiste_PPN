@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Trash2, Eye, RefreshCw, Plus } from "lucide-react";
+import { Trash2, Eye, RefreshCw, Plus, Wallet, AlertCircle } from "lucide-react";
 import DataTable from "@/components/DataTable";
 import { getCaisseEntries, deleteCaisseEntry } from "@/services/caisseService";
 import CaisseEntry from "./CaisseEntry";
@@ -39,7 +39,29 @@ export default function CaisseList() {
   };
 
   useEffect(() => {
-    fetchCaisses();
+    let active = true;
+
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getCaisseEntries();
+        if (active) setCaisses(data);
+      } catch (err) {
+        if (!active) return;
+        console.error("Erreur récupération caisses:", err);
+        const errorMessage = err instanceof Error ? err.message : "Erreur inconnue";
+        setError(errorMessage);
+        showError(errorMessage, "Erreur de chargement");
+        setCaisses([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Format date
@@ -72,7 +94,7 @@ export default function CaisseList() {
   const handleView = (caisse: Caisse) => {
     const typeLabel = getTypeLabel(caisse.type);
     Swal.fire({
-      title: `💰 Détails du mouvement #${caisse.id}`,
+      title: `Détails du mouvement #${caisse.id}`,
       html: `
         <div class="text-left space-y-3">
           <div class="border-b pb-2">
@@ -156,8 +178,8 @@ export default function CaisseList() {
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
             item.type === "recette"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
+              ? "bg-green-100 text-green-800 border border-green-200"
+              : "bg-red-100 text-red-800 border border-red-200"
           }`}
         >
           {getTypeLabel(item.type)}
@@ -201,96 +223,100 @@ export default function CaisseList() {
   const nombreMouvements = caisses.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* En-tête */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200/80">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">
-                💰 Gestion de Caisse
-              </h1>
-              <p className="text-slate-600 mt-1">
-                Suivi des entrées et sorties de caisse
-              </p>
-            </div>
+    <div className="space-y-6">
+      {/* En-tête */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <Wallet className="text-indigo-600" size={28} />
+            Gestion de Caisse
+          </h2>
+          <p className="text-slate-600 mt-1">
+            Suivi des entrées et sorties de caisse
+          </p>
+        </div>
 
-            <div className="flex gap-3">
+        <div className="flex gap-3">
+          <button
+            onClick={fetchCaisses}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium shadow-sm hover:bg-slate-50 transition-all disabled:opacity-50"
+          >
+            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+            Actualiser
+          </button>
+
+          <button
+            onClick={() => setShowEntryModal(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl font-medium shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all"
+          >
+            <Plus size={20} />
+            Nouveau mouvement
+          </button>
+        </div>
+      </div>
+
+      {/* Statistiques */}
+      <CaisseSummary
+        soldeTotal={soldeTotal}
+        totalEntrees={totalEntrees}
+        totalSorties={totalSorties}
+        nombreMouvements={nombreMouvements}
+      />
+
+      {/* Gestion des erreurs */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+            <div className="flex-1">
+              <p className="font-semibold text-red-800">Erreur de chargement</p>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
               <button
                 onClick={fetchCaisses}
-                disabled={loading}
-                className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-50"
+                className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
               >
-                <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-                Actualiser
-              </button>
-
-              <button
-                onClick={() => setShowEntryModal(true)}
-                className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:shadow-xl text-white px-6 py-3 rounded-xl font-medium shadow-lg transition-all flex items-center gap-2"
-              >
-                <Plus size={18} />
-                Nouveau mouvement
+                Réessayer
               </button>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Statistiques */}
-        <CaisseSummary
-          soldeTotal={soldeTotal}
-          totalEntrees={totalEntrees}
-          totalSorties={totalSorties}
-          nombreMouvements={nombreMouvements}
+      {/* Loader */}
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p className="text-slate-600 font-medium">Chargement des données...</p>
+          </div>
+        </div>
+      ) : (
+        /* Table */
+        <DataTable
+          columns={columns}
+          data={caisses}
+          emptyMessage="Aucun mouvement de caisse trouvé"
+          actions={(item) => (
+            <>
+              <button
+                onClick={() => handleView(item)}
+                className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                title="Voir"
+              >
+                <Eye size={18} />
+              </button>
+              <button
+                onClick={() => handleDelete(item)}
+                className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
+                title="Supprimer"
+              >
+                <Trash2 size={18} />
+              </button>
+            </>
+          )}
         />
-
-        {/* Gestion des erreurs */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800">
-            <p className="font-semibold">❌ Erreur de chargement</p>
-            <p className="text-sm mt-1">{error}</p>
-            <button
-              onClick={fetchCaisses}
-              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
-            >
-              Réessayer
-            </button>
-          </div>
-        )}
-
-        {/* Loader */}
-        {loading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            <p className="mt-4 text-slate-600">Chargement des données...</p>
-          </div>
-        ) : (
-          /* Table */
-          <DataTable
-            columns={columns}
-            data={caisses}
-            emptyMessage="Aucun mouvement de caisse trouvé"
-            actions={(item) => (
-              <>
-                <button
-                  onClick={() => handleView(item)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                  title="Voir"
-                >
-                  <Eye size={18} />
-                </button>
-                <button
-                  onClick={() => handleDelete(item)}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                  title="Supprimer"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </>
-            )}
-          />
-        )}
-      </div>
+      )}
 
       {/* Modal d'ajout */}
       {showEntryModal && (

@@ -12,8 +12,8 @@ import {
   closeLoading 
 } from "@/utils/sweetAlertUtils";
 import { Plus, Eye, Pencil, Trash2, Package, AlertCircle } from "lucide-react";
-import ArticlesCreate from "./ArticlesCreate"; // Adjust path if necessary
-import ArticlesEdit from "./ArticlesEdit"; // Adjust path if necessary
+import ArticlesCreate from "./ArticlesCreate";
+import ArticlesEdit from "./ArticlesEdit";
 
 export default function ArticlesList() {
   const navigate = useNavigate();
@@ -110,7 +110,7 @@ export default function ArticlesList() {
       label: "Prix de vente",
       render: (item: Article) => (
         <span className="font-semibold text-indigo-600">
-          {item.prix_vente.toLocaleString("fr-FR")} Ar
+          {Math.round(item.prix_vente).toLocaleString("fr-FR")} Ar
         </span>
       )
     },

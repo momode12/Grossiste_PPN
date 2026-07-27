@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Eye, Trash2, Calendar, DollarSign, XCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, Trash2, Calendar, DollarSign, XCircle, Plus } from "lucide-react";
 import DataTable from "@/components/DataTable";
 import type { Column } from "@/components/DataTable";
 import Modal from "@/components/Modal";
@@ -28,10 +28,26 @@ export default function VentesList() {
       setVentes(data);
     } catch {
       showError("Erreur lors du chargement des ventes");
-    } 
+    }
   };
 
- 
+  // Chargement initial isolé, avec garde contre le setState après démontage
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      try {
+        const data = await getVentes();
+        if (active) setVentes(data);
+      } catch {
+        if (active) showError("Erreur lors du chargement des ventes");
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleDelete = async (id: number) => {
     const result = await confirmDelete(
@@ -171,6 +187,18 @@ export default function VentesList() {
 
   return (
     <div className="p-4">
+      {/* En-tête avec bouton de création */}
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-slate-800">Liste des ventes</h1>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+        >
+          <Plus size={18} />
+          Nouvelle vente
+        </button>
+      </div>
+
       {/* Statistiques */}
       <div className="mb-6 grid grid-cols-2 gap-6 text-center">
         <div className="bg-white p-4 rounded-xl shadow border border-slate-200">
